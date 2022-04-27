@@ -11,33 +11,41 @@ const run = (offset, start, end, workDays) => {
 //Get now UTC Date
 const nowUTC = (offset) => {
     let now = new Date;
-    let utc_timestamp = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
-        now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds());
+    let utc_timestamp = Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        now.getUTCMinutes(),
+        now.getUTCSeconds(),
+        now.getUTCMilliseconds()
+    );
 
     return new Date(utc_timestamp + offset * 3600 * 1000);
 }
 
 //Get UTC Date
-const utcDate = (timeString, today) => {
-    let now = new Date;
-
-    let hour = getValueByString('hour', timeString);
-    let minutes = getValueByString('minutes', timeString);
-    let utc_timestamp = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(),
-        hour, minutes, 0, 0);
+function utcDate(timeString, today) {
+    const { hour, minutes } = getHourAndMinutes(timeString);
+    const utc_timestamp = Date.UTC(
+        today.getUTCFullYear(),
+        today.getUTCMonth(),
+        today.getUTCDate(),
+        hour,
+        minutes,
+        0,
+        0
+    );
     return new Date(utc_timestamp);
 }
 
 //Get hour/minute by string with pattern HH:mm
-const getValueByString = (type, timeString) => {
-
-    if (type === 'hour') {
-        return parseInt(timeString.substring(0, timeString.indexOf(':')));
-    } else if (type === 'minutes') {
-        return parseInt(timeString.substring(timeString.indexOf(':') + 1, timeString.length));
-    }
-
-    return 0;
+function getHourAndMinutes(timeString) {
+    const time = timeString.split(":");
+    return {
+        "hour": time[0],
+        "minutes": time[1]
+    };
 }
 
 //Get if today is a work day

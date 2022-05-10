@@ -1,12 +1,12 @@
 const WHATSAPP_DOMAIN = 'wa.gw.msging.net';
 
 const run = (domain, menu) => {
-    let { header, content, options_WA, options_BC } = JSON.parse(menu);
+    let { content, options_WA, options_BC } = JSON.parse(menu);
 
     domain = domain.split('@')[1];
 
     if (domain == WHATSAPP_DOMAIN) {
-        return buildWhatsAppQuickReply(header, content, options_WA);
+        return buildWhatsAppQuickReply(content, options_WA);
     } else {
         return buildBlipChatQuickReply(content, options_BC);
     }
@@ -16,7 +16,7 @@ const replaceHTMLToMarkdown = (content) => {
     return content.replace(/<br>/g, '\n').replace(/<b>/g, '*').replace(/<\/b>/g, '*');
 }
 
-const buildWhatsAppQuickReply = (header, content, options) => {
+const buildWhatsAppQuickReply = (content, options) => {
     let buttons = Object.keys(options).map((key) => {
         return {
             'type': 'reply',
@@ -35,7 +35,6 @@ const buildWhatsAppQuickReply = (header, content, options) => {
             'type': 'interactive',
             'interactive': {
                 'type': 'button',
-                header,
                 'body': {
                     'text': replaceHTMLToMarkdown(content)
                 },

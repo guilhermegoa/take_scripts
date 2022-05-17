@@ -1,38 +1,44 @@
 // Receive the variables as parameters
-function run(offset, workSchedule) {
-    workSchedule = JSON.parse(workSchedule);
-    const today = nowUTC(parseInt(offset));
-    const workDay = getWorkDay(today, workSchedule);
+const run = (offset, start, end, startWeekend, endWeekend, workDays) => {
+    offset = parseInt(offset);
+    const today = nowUTC(offset);
 
-    if (!!workDay) {
-        const intervalTime = getIntervalTime(workDay, today);
-        return checkTime(intervalTime, today) ? "Sim" : "Nao";
+    if (!isWorkDay(today, workDays)) {
+        return "Nao";
     }
 
-    return "Nao";
+    let startDate;
+    let endDate;
+    const WEEKEND_WORK_DAY = 6; // Saturday constant
+
+    if (today.getDay() == WEEKEND_WORK_DAY) {
+        startDate = utcDate(startWeekend, today);
+        endDate = utcDate(endWeekend, today);
+    }
+    else {
+        startDate = utcDate(start, today);
+        endDate = utcDate(end, today);
+    }
+
+    return isWorkTime(today, startDate, endDate) ? 'Sim' : 'Nao';
 }
 
-function getWorkDay(today, workSchedule) {
-    return workSchedule.find(datas => datas.dayNumber == today.getDay());
+//Get if is work time
+const isWorkTime = (today, startDate, endDate) => {
+    return (today - startDate) > 0 && (endDate - today) > 0;
 }
 
-function getIntervalTime(workDay, today) {
-    return workDay.workTime.map(time => {
-        return {
-            start: utcDate(time.start, today),
-            end: utcDate(time.end, today)
-        }
-    });
-}
+//Get if today is a work day
+const isWorkDay = (today, workDays) => {
+    workDays = workDays.replace('[', '').replace(']', '').split(',');
 
-function checkTime(intervalTime, today) {
-    return intervalTime.some(time => today - time.start > 0 && today - time.end < 0)
+    return workDays.some(dayNumber => dayNumber == today.getDay());
 }
 
 //Get now UTC Date
-function nowUTC(offset) {
-    const now = new Date();
-    const utc_timestamp = Date.UTC(
+const nowUTC = (offset) => {
+    let now = new Date;
+    let utc_timestamp = Date.UTC(
         now.getUTCFullYear(),
         now.getUTCMonth(),
         now.getUTCDate(),
@@ -41,6 +47,7 @@ function nowUTC(offset) {
         now.getUTCSeconds(),
         now.getUTCMilliseconds()
     );
+
     return new Date(utc_timestamp + offset * 3600 * 1000);
 }
 
@@ -68,76 +75,11 @@ function getHourAndMinutes(timeString) {
     };
 }
 
+const offset = "-3"
+const start = "06:00";
+const end = "18:00"
+const startWeekend = "07:00"
+const endWeekend = "13:00"
+const workDays = [1, 2, 3, 4, 5, 6];
 
-
-
-let workSchedule = [
-    {
-        "dayNumber": 1,
-        "name": "Monday",
-        "portugueseName": "Segunda",
-        "workTime": [
-            {
-                "start": "08:00",
-                "end": "17:00"
-            }
-        ]
-    },
-    {
-        "dayNumber": 2,
-        "name": "Tuesday",
-        "portugueseName": "Terça",
-        "workTime": [
-            {
-                "start": "08:00",
-                "end": "17:00"
-            }
-        ]
-    },
-    {
-        "dayNumber": 3,
-        "name": "Wednesday",
-        "portugueseName": "Quarta",
-        "workTime": [
-            {
-                "start": "08:00",
-                "end": "17:00"
-            }
-        ]
-    },
-    {
-        "dayNumber": 4,
-        "name": "Thursday",
-        "portugueseName": "Quinta",
-        "workTime": [
-            {
-                "start": "08:00",
-                "end": "17:00"
-            }
-        ]
-    },
-    {
-        "dayNumber": 5,
-        "name": "Friday",
-        "portugueseName": "Sexta",
-        "workTime": [
-            {
-                "start": "08:00",
-                "end": "17:00"
-            }
-        ]
-    },
-    {
-        "dayNumber": 6,
-        "name": "Saturday",
-        "portugueseName": "Sábado",
-        "workTime": [
-            {
-                "start": "07:00",
-                "end": "12:00"
-            }
-        ]
-    }
-];
-
-console.log(run("-3", JSON.stringify(workSchedule)))
+console.log(run(offset, start, end, startWeekend, endWeekend, JSON.stringify(workDays)));

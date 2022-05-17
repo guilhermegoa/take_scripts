@@ -7,8 +7,8 @@ const run = (input) => {
 
     try {
         const matchItens = {
-            "^1\\.?$|(1\\.?)?((Sou o Medico)|(Medico))": "Sou o Medico",
-            "^2\\.?$|(2\\.?)?((Sou assistente do Medico)|(Assistente do Medico)|(Assistente))": "Sou assistente do Medico",
+            "^1\\.?$|^(1\\.?)?((Sou o Medico)|(Medico))$": "Sou o Medico",
+            "^2\\.?$|^(2\\.?)?((Sou assistente do Medico)|(Assistente do Medico)|(Assistente))$": "Sou assistente do Medico",
         };
 
         const match = Object.keys(matchItens).find((key) => input.match(RegExp(key, 'gmi')));
@@ -57,4 +57,4 @@ const capitalizeFirstLetter = (text) => {
 }
 
 
-console.log(run("Hospital Parceiro ou Credenciado"))
+console.log(removeSpecialCharacters("31310-340"))

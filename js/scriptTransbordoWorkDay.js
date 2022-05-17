@@ -1,17 +1,38 @@
 // Receive the variables as parameters
-const run = (offset, start, end, workDays) => {
-    offset = parseInt(offset);
-    let today = nowUTC(offset);
-    let startDate = utcDate(start, today);
-    let endDate = utcDate(end, today);
+const run = (offset, workSchedule) => {
+    workSchedule = JSON.parse(workSchedule);
+    const today = nowUTC(parseInt(offset));
+    const workDay = getWorkDay(today, workSchedule);
 
-    return ((today - startDate) > 0) && ((endDate - today) > 0) && isWorkDay(today, workDays) ? 'Sim' : 'Nao';
+    if (!!workDay) {
+        const intervalTime = getIntervalTime(workDay, today);
+        return checkTime(intervalTime, today) ? "Sim" : "Nao";
+    }
+
+    return "Nao";
+}
+
+const getWorkDay = (today, workSchedule) => {
+    return workSchedule.find(datas => datas.dayNumber == today.getDay());
+}
+
+const getIntervalTime = (workDay, today) => {
+    return workDay.workTime.map(time => {
+        return {
+            start: utcDate(time.start, today),
+            end: utcDate(time.end, today)
+        }
+    });
+}
+
+const checkTime = (intervalTime, today) => {
+    return intervalTime.some(time => today - time.start > 0 && today - time.end < 0)
 }
 
 //Get now UTC Date
 const nowUTC = (offset) => {
-    let now = new Date;
-    let utc_timestamp = Date.UTC(
+    const now = new Date();
+    const utc_timestamp = Date.UTC(
         now.getUTCFullYear(),
         now.getUTCMonth(),
         now.getUTCDate(),
@@ -20,12 +41,11 @@ const nowUTC = (offset) => {
         now.getUTCSeconds(),
         now.getUTCMilliseconds()
     );
-
     return new Date(utc_timestamp + offset * 3600 * 1000);
 }
 
 //Get UTC Date
-function utcDate(timeString, today) {
+const utcDate = (timeString, today) => {
     const { hour, minutes } = getHourAndMinutes(timeString);
     const utc_timestamp = Date.UTC(
         today.getUTCFullYear(),
@@ -40,7 +60,7 @@ function utcDate(timeString, today) {
 }
 
 //Get hour/minute by string with pattern HH:mm
-function getHourAndMinutes(timeString) {
+const getHourAndMinutes = (timeString) => {
     const time = timeString.split(":");
     return {
         "hour": time[0],
@@ -48,17 +68,73 @@ function getHourAndMinutes(timeString) {
     };
 }
 
-//Get if today is a work day
-const isWorkDay = (today, workDays) => {
-    workDays = workDays.split(',');
+let workSchedule = [
+    {
+        "dayNumber": 1,
+        "name": "Monday",
+        "portugueseName": "Segunda",
+        "workTime": [
+            {
+                "start": "08:00",
+                "end": "17:00"
+            }
+        ]
+    },
+    {
+        "dayNumber": 2,
+        "name": "Tuesday",
+        "portugueseName": "Terça",
+        "workTime": [
+            {
+                "start": "08:00",
+                "end": "17:00"
+            }
+        ]
+    },
+    {
+        "dayNumber": 3,
+        "name": "Wednesday",
+        "portugueseName": "Quarta",
+        "workTime": [
+            {
+                "start": "08:00",
+                "end": "17:00"
+            }
+        ]
+    },
+    {
+        "dayNumber": 4,
+        "name": "Thursday",
+        "portugueseName": "Quinta",
+        "workTime": [
+            {
+                "start": "08:00",
+                "end": "17:00"
+            }
+        ]
+    },
+    {
+        "dayNumber": 5,
+        "name": "Friday",
+        "portugueseName": "Sexta",
+        "workTime": [
+            {
+                "start": "08:00",
+                "end": "17:00"
+            }
+        ]
+    },
+    {
+        "dayNumber": 6,
+        "name": "Saturday",
+        "portugueseName": "Sábado",
+        "workTime": [
+            {
+                "start": "07:00",
+                "end": "12:00"
+            }
+        ]
+    }
+];
 
-    return workDays.indexOf(today.getDay().toString()) >= 0;
-}
-
-const offset = "-3"
-const start = "09:00";
-const end = "00:00"
-const endWeekend = "00:00"
-const workDays = [1, 2, 3, 4, 5];
-
-console.log(run(offset, start, end, workDays));
+console.log(run("-3", JSON.stringify(workSchedule)))
